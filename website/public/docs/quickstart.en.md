@@ -1,11 +1,12 @@
 # Quick start
 
-This section describes four ways to run CoPAW:
+This section describes five ways to run CoPAW:
 
 - **Option A — One-line install (recommended)**: run on your machine with no Python setup required.
 - **Option B — pip install**: if you prefer managing Python yourself.
 - **Option C — ModelScope Studio**: one-click cloud deploy, no local install needed.
-- **Option D — Alibaba Cloud ECS**: one-click deploy on Alibaba Cloud, no local install.
+- **Option D — Docker**: use official images from Docker Hub (ACR also available for users in China); tags include `latest` (stable) and `pre` (PyPI pre-release).
+- **Option E — Alibaba Cloud ECS**: one-click deploy on Alibaba Cloud, no local install.
 
 > 📖 Read [Introduction](./intro) first; after install see [Console](./console).
 
@@ -27,6 +28,12 @@ curl -fsSL https://copaw.agentscope.io/install.sh | bash
 
 Then open a new terminal (or `source ~/.zshrc` / `source ~/.bashrc`).
 
+**Windows (CMD):**
+
+```cmd
+curl -fsSL https://copaw.agentscope.io/install.bat -o install.bat && install.bat
+```
+
 **Windows (PowerShell):**
 
 ```powershell
@@ -34,6 +41,33 @@ irm https://copaw.agentscope.io/install.ps1 | iex
 ```
 
 Then open a new terminal (the installer adds CoPaw to your PATH automatically).
+
+> **⚠️ Special Notice for Windows Enterprise LTSC Users**
+>
+> If you are using Windows LTSC or an enterprise environment governed by strict security policies, PowerShell may run in **Constrained Language Mode**, potentially causing the following issue:
+>
+> 1. **If using CMD (.bat): Script executes successfully but fails to write to `Path`**
+>
+>    The script completes file installation. Due to **Constrained Language Mode**, it cannot automatically update environment variables. Manually configure as follows:
+>
+>    - **Locate the installation directory**:
+>      - Check if `uv` is available: Enter `uv --version` in CMD. If a version number appears, **only configure the CoPaw path**. If you receive the prompt `'uv' is not recognized as an internal or external command, operable program or batch file,` configure both paths.
+>      - uv path (choose one based on installation location; use if step 1 fails): Typically `%USERPROFILE%\.local\bin`, `%USERPROFILE%\AppData\Local\uv`, or the `Scripts` folder within your Python installation directory
+>      - CoPaw path: Typically located at `%USERPROFILE%\.copaw\bin`.
+>    - **Manually add to the system's Path environment variable**:
+>      - Press `Win + R`, type `sysdm.cpl` and press Enter to open System Properties.
+>      - Click “Advanced” -> “Environment Variables”.
+>      - Under “System variables”, locate and select `Path`, then click “Edit”.
+>      - Click “New”, enter both directory paths sequentially, then click OK to save.
+>
+> 2. **If using PowerShell (.ps1): Script execution interrupted**
+>
+> Due to **Constrained Language Mode**, the script may fail to automatically download `uv`.
+>
+> - **Manually install uv**: Refer to the [GitHub Release](https://github.com/astral-sh/uv/releases) to download `uv.exe` and place it in `%USERPROFILE%\.local\bin` or `%USERPROFILE%\AppData\Local\uv`; or ensure Python is installed and run `python -m pip install -U uv`.
+> - **Configure `uv` environment variables**: Add the `uv` directory and `%USERPROFILE%\.copaw\bin` to your system's `Path` variable.
+> - **Re-run the installation**: Open a new terminal and execute the installation script again to complete the `CoPaw` installation.
+> - **Configure the `CoPaw` environment variable**: Add `%USERPROFILE%\.copaw\bin` to your system's `Path` variable.
 
 You can also pass options:
 
@@ -49,6 +83,7 @@ curl -fsSL ... | bash -s -- --from-source
 # With local model support (see Local Models docs)
 bash install.sh --extras llamacpp    # llama.cpp (cross-platform)
 bash install.sh --extras mlx         # MLX (Apple Silicon)
+bash install.sh --extras ollama      # Ollama (cross-platform, requires Ollama service)
 ```
 
 **Windows (PowerShell):**
@@ -63,6 +98,7 @@ bash install.sh --extras mlx         # MLX (Apple Silicon)
 # With local model support (see Local Models docs)
 .\install.ps1 -Extras llamacpp      # llama.cpp (cross-platform)
 .\install.ps1 -Extras mlx           # MLX
+.\install.ps1 -Extras ollama        # Ollama
 ```
 
 To upgrade, simply re-run the install command. To uninstall, run `copaw uninstall`.
@@ -127,7 +163,22 @@ CoPaw.
 
 ---
 
-## Option D: Deploy on Alibaba Cloud ECS
+## Option D: Docker
+
+Images are on **Docker Hub** (`agentscope/copaw`). Image tags: `latest` (stable); `pre` (PyPI pre-release). Also available on Alibaba Cloud ACR for users in China: `agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/copaw` (same tags).
+
+Pull and run:
+
+```bash
+docker pull agentscope/copaw:latest
+docker run -p 127.0.0.1:8088:8088 -v copaw-data:/app/working agentscope/copaw:latest
+```
+
+Then open **http://127.0.0.1:8088/** in your browser for the Console. Config, memory, and skills are stored in the `copaw-data` volume. To pass API keys, add `-e DASHSCOPE_API_KEY=xxx` or `--env-file .env` to `docker run`.
+
+---
+
+## Option E: Deploy on Alibaba Cloud ECS
 
 To run CoPaw on Alibaba Cloud, use the ECS one-click deployment:
 

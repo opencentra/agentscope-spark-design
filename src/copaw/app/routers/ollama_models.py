@@ -49,6 +49,18 @@ class OllamaDownloadTaskResponse(BaseModel):
     result: Optional[OllamaModelResponse] = None
 
 
+def _is_ollama_connection_error(exc: Exception) -> bool:
+    """Return True when the exception indicates Ollama daemon is unreachable.
+
+    The ollama SDK may raise different exception types depending on version.
+    We keep detection tolerant by checking both type and message patterns.
+    """
+    if isinstance(exc, ConnectionError):
+        return True
+    msg = str(exc).lower()
+    return "failed to connect to ollama" in msg or "connection refused" in msg
+
+
 def _task_to_response(task: DownloadTask) -> OllamaDownloadTaskResponse:
     result = None
     if task.result:
@@ -72,19 +84,30 @@ async def list_ollama_models() -> List[OllamaModelResponse]:
 
     If the Ollama SDK is not installed, returns HTTP 501.
     """
+    from ...providers.ollama_manager import OllamaModelManager
+    from ...providers.store import get_ollama_host
+
     try:
-        from ...providers.ollama_manager import OllamaModelManager
+        models = OllamaModelManager.list_models(host=get_ollama_host())
     except ImportError as exc:
         raise HTTPException(
             status_code=501,
-            detail=(
-                "Ollama SDK not installed. Install with: pip install ollama"
-            ),
+            detail="Ollama SDK not installed. Install with: "
+            "pip install 'copaw[ollama]'",
         ) from exc
-
-    try:
-        models = OllamaModelManager.list_models()
     except Exception as exc:
+        if _is_ollama_connection_error(exc):
+            logger.warning(
+                "Failed to connect to Ollama while listing models: %s",
+                exc,
+            )
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Failed to connect to Ollama. "
+                    "Please ensure Ollama is installed and running."
+                ),
+            ) from exc
         logger.exception("Failed to list Ollama models")
         raise HTTPException(
             status_code=500,
@@ -132,19 +155,31 @@ async def _run_pull_in_background(
 ) -> None:
     """Execute the Ollama pull in a thread and update task status."""
     from ...providers.ollama_manager import OllamaModelManager, OllamaModelInfo
+    from ...providers.store import get_ollama_host
 
     await update_status(task_id, DownloadTaskStatus.DOWNLOADING)
+    host = get_ollama_host()
 
     try:
         info: OllamaModelInfo = await loop.run_in_executor(
             None,
-            lambda: OllamaModelManager.pull_model(name),
+            lambda: OllamaModelManager.pull_model(name, host=host),
         )
         result_dict = info.model_dump()
         await update_status(
             task_id,
             DownloadTaskStatus.COMPLETED,
             result=result_dict,
+        )
+    except ImportError:
+        logger.exception("Ollama SDK not installed")
+        await update_status(
+            task_id,
+            DownloadTaskStatus.FAILED,
+            error=(
+                "Ollama SDK not installed. "
+                "Install with: pip install 'copaw[ollama]'"
+            ),
         )
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("Ollama model pull failed: %s", exc)
@@ -187,16 +222,17 @@ async def cancel_ollama_download(task_id: str) -> dict:
 )
 async def delete_ollama_model(name: str) -> dict:
     """Delete an Ollama model via the SDK."""
-    try:
-        from ...providers.ollama_manager import OllamaModelManager
-    except ImportError as exc:  # pragma: no cover - import guard
-        raise HTTPException(
-            status_code=501,
-            detail="Ollama SDK not installed.",
-        ) from exc
+    from ...providers.ollama_manager import OllamaModelManager
+    from ...providers.store import get_ollama_host
 
     try:
-        OllamaModelManager.delete_model(name)
+        OllamaModelManager.delete_model(name, host=get_ollama_host())
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=501,
+            detail="Ollama SDK not installed. Install with: "
+            "pip install 'copaw[ollama]'",
+        ) from exc
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("Failed to delete Ollama model: %s", exc)
         raise HTTPException(status_code=400, detail=str(exc)) from exc

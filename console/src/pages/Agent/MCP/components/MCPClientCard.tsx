@@ -1,7 +1,23 @@
-import { Card, Button, Modal } from "@agentscope-ai/design";
-import { DeleteOutlined } from "@ant-design/icons";
-import { Server } from "lucide-react";
-import type { MCPClientInfo } from "../../../../api/types";
+/**
+ * MCP客户端卡片组件
+ *
+ * 功能说明：
+ * 1. 显示MCP客户端的基本信息（名称、类型、状态、描述）
+ * 2. 提供Test Connection按钮测试连接并获取工具列表
+ * 3. 提供Enable/Disable切换按钮
+ * 4. 提供Delete删除按钮
+ * 5. 点击卡片可查看/编辑JSON配置
+ *
+ * 后端API：
+ * - POST /api/mcp/{client_key}/test - 测试连接
+ * - PUT /api/mcp/{client_key} - 更新配置
+ * - DELETE /api/mcp/{client_key} - 删除客户端
+ */
+import { Card, Button, Modal, Tooltip } from "@agentscope-ai/design";
+import { DeleteOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Server, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import type { MCPClientInfo, MCPTestResult } from "../../../../api/types";
+import api from "../../../../api";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import styles from "../index.module.less";
@@ -26,16 +42,24 @@ export function MCPClientCard({
   onMouseLeave,
 }: MCPClientCardProps) {
   const { t } = useTranslation();
+  // JSON配置弹窗状态
   const [jsonModalOpen, setJsonModalOpen] = useState(false);
+  // 删除确认弹窗状态
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  // 编辑中的JSON内容
   const [editedJson, setEditedJson] = useState("");
+  // 是否处于编辑模式
   const [isEditing, setIsEditing] = useState(false);
+  // 测试连接结果
+  const [testResult, setTestResult] = useState<MCPTestResult | null>(null);
+  // 是否正在测试连接
+  const [isTesting, setIsTesting] = useState(false);
+  // 是否显示工具列表弹窗
+  const [showTools, setShowTools] = useState(false);
 
-  // Determine if MCP client is remote or local based on command
+  // 判断客户端类型：Remote（HTTP/SSE）或 Local（stdio）
   const isRemote =
-    client.command.startsWith("http://") ||
-    client.command.startsWith("https://") ||
-    client.command.includes("://");
+    client.transport === "streamable_http" || client.transport === "sse";
   const clientType = isRemote ? "Remote" : "Local";
 
   const handleToggleClick = (e: React.MouseEvent) => {
@@ -53,6 +77,7 @@ export function MCPClientCard({
     onDelete(client, null as any);
   };
 
+  // 点击卡片打开JSON配置弹窗
   const handleCardClick = () => {
     const jsonStr = JSON.stringify(client, null, 2);
     setEditedJson(jsonStr);
@@ -60,12 +85,11 @@ export function MCPClientCard({
     setJsonModalOpen(true);
   };
 
+  // 保存JSON配置
   const handleSaveJson = async () => {
     try {
       const parsed = JSON.parse(editedJson);
       const { key, ...updates } = parsed;
-
-      // Send all updates directly to backend, let backend handle env masking check
       const success = await onUpdate(client.key, updates);
       if (success) {
         setJsonModalOpen(false);
@@ -73,6 +97,35 @@ export function MCPClientCard({
       }
     } catch (error) {
       alert("Invalid JSON format");
+    }
+  };
+
+  /**
+   * 测试MCP客户端连接
+   *
+   * 调用后端API: POST /api/mcp/{client_key}/test
+   * 返回：{ success, error, tools, connection_time_ms }
+   */
+  const handleTestConnection = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      const result = await api.testMCPClient(client.key);
+      setTestResult(result);
+      // 连接成功时自动弹出工具列表
+      if (result.success) {
+        setShowTools(true);
+      }
+    } catch (error: any) {
+      setTestResult({
+        success: false,
+        error: error.message || "Connection failed",
+        tools: [],
+        connection_time_ms: 0,
+      });
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -94,7 +147,9 @@ export function MCPClientCard({
             <span className={styles.fileIcon}>
               <Server style={{ color: "#1890ff", fontSize: 20 }} />
             </span>
-            <h3 className={styles.mcpTitle}>{client.name}</h3>
+            <Tooltip title={client.name}>
+              <h3 className={styles.mcpTitle}>{client.name}</h3>
+            </Tooltip>
             <span
               className={`${styles.typeBadge} ${
                 isRemote ? styles.remote : styles.local
@@ -123,7 +178,74 @@ export function MCPClientCard({
           {client.description || "\u00A0"}
         </div>
 
+        {/* Connection status indicator */}
+        {testResult && (
+          <div
+            style={{
+              marginTop: 8,
+              padding: "8px 12px",
+              borderRadius: 6,
+              backgroundColor: testResult.success ? "#f6ffed" : "#fff2f0",
+              borderLeft: `3px solid ${testResult.success ? "#52c41a" : "#ff4d4f"}`,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              {testResult.success ? (
+                <CheckCircle style={{ color: "#52c41a", fontSize: 16 }} />
+              ) : (
+                <XCircle style={{ color: "#ff4d4f", fontSize: 16 }} />
+              )}
+              <span
+                style={{
+                  fontSize: 12,
+                  color: testResult.success ? "#52c41a" : "#ff4d4f",
+                  fontWeight: 500,
+                }}
+              >
+                {testResult.success
+                  ? `${t("mcp.connectionSuccess")} (${testResult.connection_time_ms}ms)`
+                  : t("mcp.connectionFailed")}
+              </span>
+            </div>
+            {!testResult.success && testResult.error && (
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#999",
+                  marginTop: 4,
+                  wordBreak: "break-all",
+                }}
+              >
+                {testResult.error}
+              </div>
+            )}
+            {testResult.success && testResult.tools.length > 0 && (
+              <div style={{ fontSize: 11, color: "#666", marginTop: 4 }}>
+                {t("mcp.toolsAvailable", { count: testResult.tools.length })}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className={styles.cardFooter}>
+          {/* Test connection button */}
+          <Button
+            type="link"
+            size="small"
+            icon={
+              isTesting ? (
+                <LoadingOutlined spin style={{ fontSize: 12 }} />
+              ) : (
+                <RefreshCw size={12} />
+              )
+            }
+            onClick={handleTestConnection}
+            className={styles.actionButton}
+            disabled={isTesting}
+          >
+            {isTesting ? t("mcp.testing") : t("mcp.testConnection")}
+          </Button>
+
           <Button
             type="link"
             size="small"
@@ -190,6 +312,68 @@ export function MCPClientCard({
           />
         ) : (
           <pre className={styles.preformattedText}>{clientJson}</pre>
+        )}
+      </Modal>
+
+      {/* Tools list modal */}
+      <Modal
+        title={`${client.name} - ${t("mcp.toolsList")}`}
+        open={showTools}
+        onCancel={() => setShowTools(false)}
+        footer={
+          <div style={{ textAlign: "right" }}>
+            <Button onClick={() => setShowTools(false)}>
+              {t("common.close")}
+            </Button>
+          </div>
+        }
+        width={800}
+      >
+        {testResult?.tools && testResult.tools.length > 0 ? (
+          <div style={{ maxHeight: 500, overflow: "auto" }}>
+            {testResult.tools.map((tool, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: "12px",
+                  borderBottom:
+                    index < testResult.tools.length - 1
+                      ? "1px solid #f0f0f0"
+                      : "none",
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                  {tool.name}
+                </div>
+                <div style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
+                  {tool.description || t("mcp.noDescription")}
+                </div>
+                {tool.input_schema && Object.keys(tool.input_schema).length > 0 && (
+                  <details style={{ fontSize: 11 }}>
+                    <summary style={{ cursor: "pointer", color: "#1890ff" }}>
+                      {t("mcp.inputSchema")}
+                    </summary>
+                    <pre
+                      style={{
+                        fontSize: 10,
+                        backgroundColor: "#f5f5f5",
+                        padding: 8,
+                        borderRadius: 4,
+                        overflow: "auto",
+                        maxHeight: 200,
+                      }}
+                    >
+                      {JSON.stringify(tool.input_schema, null, 2)}
+                    </pre>
+                  </details>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
+            {t("mcp.noTools")}
+          </div>
         )}
       </Modal>
     </>

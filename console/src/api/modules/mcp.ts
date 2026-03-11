@@ -3,6 +3,7 @@ import type {
   MCPClientInfo,
   MCPClientCreateRequest,
   MCPClientUpdateRequest,
+  MCPTestResult,
 } from "../types";
 
 export const mcpApi = {
@@ -49,5 +50,13 @@ export const mcpApi = {
   deleteMCPClient: (clientKey: string) =>
     request<{ message: string }>(`/mcp/${encodeURIComponent(clientKey)}`, {
       method: "DELETE",
+    }),
+
+  /**
+   * Test MCP client connection
+   */
+  testMCPClient: (clientKey: string) =>
+    request<MCPTestResult>(`/mcp/${encodeURIComponent(clientKey)}/test`, {
+      method: "POST",
     }),
 };

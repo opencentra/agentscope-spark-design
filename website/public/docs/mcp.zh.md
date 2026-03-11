@@ -77,6 +77,56 @@ CoPaw 支持三种 JSON 格式导入 MCP 客户端：
 
 ---
 
+## 传输类型
+
+CoPaw 支持两种 MCP 传输类型：
+
+### 1. stdio 传输（本地进程）
+
+使用 `command` 和 `args` 启动本地 MCP 服务器进程：
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"]
+    }
+  }
+}
+```
+
+### 2. HTTP/SSE 传输（远程服务器）
+
+使用 `url` 连接远程 HTTP MCP 服务器：
+
+```json
+{
+  "mcpServers": {
+    "my-remote-mcp": {
+      "name": "my-remote-mcp",
+      "url": "http://192.168.3.102:1110/mcp",
+      "transport": "sse",
+      "headers": {
+        "Authorization": "Bearer your-token"
+      },
+      "timeout": 30
+    }
+  }
+}
+```
+
+**HTTP 配置字段说明：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `url` | string | ✅ | MCP 服务器 URL |
+| `transport` | string | ❌ | 传输类型：`sse`（默认）或 `streamable_http` |
+| `headers` | object | ❌ | 自定义 HTTP 请求头 |
+| `timeout` | float | ❌ | 请求超时时间（秒），默认 30 |
+
+---
+
 ## 示例：文件系统 MCP 服务器
 
 ```json
@@ -95,6 +145,23 @@ CoPaw 支持三种 JSON 格式导入 MCP 客户端：
 ```
 
 > 将 `/Users/username/Documents` 替换为你希望智能体访问的目录路径。
+
+---
+
+## 示例：远程 HTTP MCP 服务器
+
+```json
+{
+  "mcpServers": {
+    "remote-tools": {
+      "name": "remote-tools",
+      "url": "http://192.168.3.102:1110/mcp",
+      "transport": "sse",
+      "timeout": 60
+    }
+  }
+}
+```
 
 ---
 

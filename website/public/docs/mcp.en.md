@@ -77,6 +77,56 @@ CoPaw supports three JSON formats for importing MCP clients:
 
 ---
 
+## Transport Types
+
+CoPaw supports two MCP transport types:
+
+### 1. stdio Transport (Local Process)
+
+Use `command` and `args` to spawn a local MCP server process:
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"]
+    }
+  }
+}
+```
+
+### 2. HTTP/SSE Transport (Remote Server)
+
+Use `url` to connect to a remote HTTP MCP server:
+
+```json
+{
+  "mcpServers": {
+    "my-remote-mcp": {
+      "name": "my-remote-mcp",
+      "url": "http://192.168.3.102:1110/mcp",
+      "transport": "sse",
+      "headers": {
+        "Authorization": "Bearer your-token"
+      },
+      "timeout": 30
+    }
+  }
+}
+```
+
+**HTTP Configuration Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `url` | string | ✅ | MCP server URL |
+| `transport` | string | ❌ | Transport type: `sse` (default) or `streamable_http` |
+| `headers` | object | ❌ | Custom HTTP headers |
+| `timeout` | float | ❌ | Request timeout in seconds (default 30) |
+
+---
+
 ## Example: Filesystem MCP server
 
 ```json
@@ -95,6 +145,23 @@ CoPaw supports three JSON formats for importing MCP clients:
 ```
 
 > Replace `/Users/username/Documents` with the directory path you want the agent to access.
+
+---
+
+## Example: Remote HTTP MCP server
+
+```json
+{
+  "mcpServers": {
+    "remote-tools": {
+      "name": "remote-tools",
+      "url": "http://192.168.3.102:1110/mcp",
+      "transport": "sse",
+      "timeout": 60
+    }
+  }
+}
+```
 
 ---
 

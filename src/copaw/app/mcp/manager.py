@@ -9,14 +9,17 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING, Union
 
-from agentscope.mcp import StdIOStatefulClient
+from agentscope.mcp import HttpStatefulClient, StdIOStatefulClient
 
 if TYPE_CHECKING:
     from ...config.config import MCPClientConfig, MCPConfig
 
 logger = logging.getLogger(__name__)
+
+# Type alias for either client type
+MCPClientType = Union[StdIOStatefulClient, HttpStatefulClient]
 
 
 class MCPClientManager:
@@ -27,12 +30,12 @@ class MCPClientManager:
     - Runtime replacement when config changes
     - Cleanup on shutdown
 
-    Design pattern mirrors ChannelManager for consistency.
+    Supports both stdio (command-based) and HTTP/SSE (URL-based) transports.
     """
 
     def __init__(self) -> None:
         """Initialize an empty MCP client manager."""
-        self._clients: Dict[str, StdIOStatefulClient] = {}
+        self._clients: Dict[str, Any] = {}
         self._lock = asyncio.Lock()
 
     async def init_from_config(self, config: "MCPConfig") -> None:
@@ -50,7 +53,9 @@ class MCPClientManager:
             try:
                 await self._add_client(key, client_config)
                 logger.debug(f"MCP client '{key}' initialized successfully")
-            except Exception as e:
+            except BaseException as e:
+                if isinstance(e, (KeyboardInterrupt, SystemExit)):
+                    raise
                 logger.warning(
                     f"Failed to initialize MCP client '{key}': {e}",
                     exc_info=True,
@@ -72,6 +77,41 @@ class MCPClientManager:
                 if client is not None
             ]
 
+    def _create_client(
+        self,
+        client_config: "MCPClientConfig",
+    ) -> MCPClientType:
+        """Create appropriate client based on configuration.
+
+        Args:
+            client_config: Client configuration
+
+        Returns:
+            Either StdIOStatefulClient or HttpStatefulClient
+        """
+        if client_config.is_http_transport():
+            # HTTP/SSE transport
+            logger.info(
+                f"Creating HTTP MCP client: {client_config.name} "
+                f"-> {client_config.url} (transport={client_config.transport})",
+            )
+            return HttpStatefulClient(
+                name=client_config.name,
+                transport=client_config.transport,
+                url=client_config.url,
+                headers=client_config.headers or None,
+                timeout=client_config.timeout,
+            )
+        else:
+            # stdio transport
+            logger.info(f"Creating stdio MCP client: {client_config.name}")
+            return StdIOStatefulClient(
+                name=client_config.name,
+                command=client_config.command,
+                args=client_config.args,
+                env=client_config.env,
+            )
+
     async def replace_client(
         self,
         key: str,
@@ -90,12 +130,7 @@ class MCPClientManager:
         """
         # 1. Create and connect new client outside lock (may be slow)
         logger.debug(f"Connecting new MCP client: {key}")
-        new_client = StdIOStatefulClient(
-            name=client_config.name,
-            command=client_config.command,
-            args=client_config.args,
-            env=client_config.env,
-        )
+        new_client = self._build_client(client_config)
 
         try:
             # Add timeout to prevent indefinite blocking
@@ -179,15 +214,44 @@ class MCPClientManager:
             client_config: Client configuration
             timeout: Connection timeout in seconds (default 60s)
         """
-        client = StdIOStatefulClient(
-            name=client_config.name,
-            command=client_config.command,
-            args=client_config.args,
-            env=client_config.env,
-        )
+        client = self._build_client(client_config)
 
         # Add timeout to prevent indefinite blocking
         await asyncio.wait_for(client.connect(), timeout=timeout)
 
         async with self._lock:
             self._clients[key] = client
+
+    @staticmethod
+    def _build_client(client_config: "MCPClientConfig") -> Any:
+        """Build MCP client instance by configured transport."""
+        rebuild_info = {
+            "name": client_config.name,
+            "transport": client_config.transport,
+            "url": client_config.url,
+            "headers": client_config.headers or None,
+            "command": client_config.command,
+            "args": list(client_config.args),
+            "env": dict(client_config.env),
+            "cwd": client_config.cwd or None,
+        }
+
+        if client_config.transport == "stdio":
+            client = StdIOStatefulClient(
+                name=client_config.name,
+                command=client_config.command,
+                args=client_config.args,
+                env=client_config.env,
+                cwd=client_config.cwd or None,
+            )
+            setattr(client, "_copaw_rebuild_info", rebuild_info)
+            return client
+
+        client = HttpStatefulClient(
+            name=client_config.name,
+            transport=client_config.transport,
+            url=client_config.url,
+            headers=client_config.headers or None,
+        )
+        setattr(client, "_copaw_rebuild_info", rebuild_info)
+        return client

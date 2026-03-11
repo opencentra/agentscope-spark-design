@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from typing import List
+from typing import Any, List
 
-from fastapi import APIRouter, Body, HTTPException, Path
+from fastapi import APIRouter, Body, HTTPException, Path, Request
+
 from ...config import (
     load_config,
     save_config,
+    get_heartbeat_config,
     ChannelConfig,
     ChannelConfigUnion,
+    get_available_channels,
 )
+from ..channels.registry import BUILTIN_CHANNEL_KEYS
+from ...config.config import HeartbeatConfig
 
-from ...constant import get_available_channels
+from .schemas_config import HeartbeatBody
 
 router = APIRouter(prefix="/config", tags=["config"])
 
@@ -24,9 +29,29 @@ async def list_channels() -> dict:
     """List all channel configs (filtered by available channels)."""
     config = load_config()
     available = get_available_channels()
-    return {
-        k: v for k, v in config.channels.model_dump().items() if k in available
-    }
+
+    # Get all channel configs from model_dump and __pydantic_extra__
+    all_configs = config.channels.model_dump()
+    extra = getattr(config.channels, "__pydantic_extra__", None) or {}
+    all_configs.update(extra)
+
+    # Return all available channels (use default config if not saved)
+    result = {}
+    for key in available:
+        if key in all_configs:
+            channel_data = (
+                dict(all_configs[key])
+                if isinstance(all_configs[key], dict)
+                else all_configs[key]
+            )
+        else:
+            # Channel registered but no config saved yet, use empty default
+            channel_data = {"enabled": False, "bot_prefix": ""}
+        if isinstance(channel_data, dict):
+            channel_data["isBuiltin"] = key in BUILTIN_CHANNEL_KEYS
+        result[key] = channel_data
+
+    return result
 
 
 @router.get(
@@ -121,3 +146,41 @@ async def put_channel(
     setattr(config.channels, channel_name, single_channel_config)
     save_config(config)
     return single_channel_config
+
+
+@router.get(
+    "/heartbeat",
+    summary="Get heartbeat config",
+    description="Return current heartbeat config (interval, target, etc.)",
+)
+async def get_heartbeat() -> Any:
+    """Return effective heartbeat config (from file or default)."""
+    hb = get_heartbeat_config()
+    return hb.model_dump(mode="json", by_alias=True)
+
+
+@router.put(
+    "/heartbeat",
+    summary="Update heartbeat config",
+    description="Update heartbeat and hot-reload the scheduler",
+)
+async def put_heartbeat(
+    request: Request,
+    body: HeartbeatBody = Body(..., description="Heartbeat configuration"),
+) -> Any:
+    """Update heartbeat config and reschedule the heartbeat job."""
+    config = load_config()
+    hb = HeartbeatConfig(
+        enabled=body.enabled,
+        every=body.every,
+        target=body.target,
+        active_hours=body.active_hours,
+    )
+    config.agents.defaults.heartbeat = hb
+    save_config(config)
+
+    cron_manager = getattr(request.app.state, "cron_manager", None)
+    if cron_manager is not None:
+        await cron_manager.reschedule_heartbeat()
+
+    return hb.model_dump(mode="json", by_alias=True)

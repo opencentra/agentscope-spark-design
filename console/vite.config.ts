@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        "@agentscope-ai/chat": path.resolve(__dirname, "./packages/agentscope-spark-design/packages/spark-chat/lib"),
       },
     },
     server: {
@@ -37,5 +38,11 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ["diff"],
     },
+    // build: {
+    //   // Output to CoPaw's console directory,
+    //   // so we don't need to copy files manually after build.
+    //   outDir: path.resolve(__dirname, "../src/copaw/console"),
+    //   emptyOutDir: true,
+    // },
   };
 });

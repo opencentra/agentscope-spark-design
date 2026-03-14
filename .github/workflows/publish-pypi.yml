@@ -1,6 +1,8 @@
 # Publish Python package to PyPI when a release is created.
 # Build includes console frontend (see scripts/wheel_build.sh).
 # Uses Trusted Publisher (OIDC) - no API token required.
+#
+# Note: agentscope-spark-design lib is pre-built and committed to the repo.
 
 name: Publish Python Package to PyPI
 
@@ -30,17 +32,6 @@ jobs:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: console/package-lock.json
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Clone and build agentscope-spark-design
-        run: |
-          rm -rf console/packages/agentscope-spark-design
-          git clone --depth 1 https://github.com/opencentra/agentscope-spark-design.git console/packages/agentscope-spark-design
-          cd console/packages/agentscope-spark-design
-          pnpm install
-          pnpm run build
 
       - name: Build console frontend
         run: |

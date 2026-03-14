@@ -89,4 +89,8 @@ baidu_result.json
 content.txt
 snapshot.json
 browser_status.json
+console/packages/agentscope-spark-design/
+!console/packages/agentscope-spark-design/packages/
+!console/packages/agentscope-spark-design/packages/spark-chat/
+!console/packages/agentscope-spark-design/packages/spark-chat/lib/
 mydocs/

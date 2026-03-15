@@ -1,53 +1,37 @@
-## Description
+## 变更类型
 
-[Describe what this PR does and why]
+- [ ] feat（新增功能）
+- [ ] fix（问题修复）
+- [ ] docs（文档）
+- [ ] chore（工程/构建/依赖）
+- [ ] refactor（重构）
+- [ ] perf（性能优化）
+- [ ] test（测试）
 
-**Related Issue:** Fixes #(issue_number) or Relates to #(issue_number)
+## 影响范围（必填）
 
-**Security Considerations:** [If applicable, e.g. channel auth, env/config handling]
+- [ ] `@agentscope-ai/design`（packages/spark-design）
+- [ ] `@agentscope-ai/chat`（packages/spark-chat）
+- [ ] `@agentscope-ai/flow`（packages/spark-flow）
+- [ ] `@agentscope-ai/clawd-chat-ui`（packages/clawd-chat-ui）
+- [ ] 仅仓库工程（不影响 npm 包）
 
-## Type of Change
+## 变更说明
 
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation
-- [ ] Refactoring
+<!-- 简述做了什么、为什么做、怎么验证 -->
 
-## Component(s) Affected
+## 验证方式
 
-- [ ] Core / Backend (app, agents, config, providers, utils, local_models)
-- [ ] Console (frontend web UI)
-- [ ] Channels (DingTalk, Feishu, QQ, Discord, iMessage, etc.)
-- [ ] Skills
-- [ ] CLI
-- [ ] Documentation (website)
-- [ ] Tests
-- [ ] CI/CD
-- [ ] Scripts / Deploy
+- [ ] 本地已通过：`pnpm run lint`
+- [ ] 本地已通过：`pnpm run build`
+- [ ] 本地已通过（如涉及）：`pnpm run docs:build`
 
-## Checklist
+## 发布影响（Maintainer 填）
 
-- [ ] I ran `pre-commit run --all-files` locally and it passes
-- [ ] If pre-commit auto-fixed files, I committed those changes and reran checks
-- [ ] I ran tests locally (`pytest` or as relevant) and they pass
-- [ ] Documentation updated (if needed)
-- [ ] Ready for review
+- [ ] 需要发版
+- [ ] 不需要发版
 
-## Testing
+> 建议 PR 标题使用 Conventional Commits，例如：`feat(design): xxx`。
+> 仓库会强制 Squash Merge，最终提交信息默认取 PR 标题。
 
-[How to test these changes]
 
-## Local Verification Evidence
-
-```bash
-pre-commit run --all-files
-# paste summary result
-
-pytest
-# paste summary result
-```
-
-## Additional Notes
-
-[Optional: any other context]

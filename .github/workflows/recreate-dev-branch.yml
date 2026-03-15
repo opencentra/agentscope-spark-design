@@ -1,0 +1,117 @@
+name: Recreate Dev Branch
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  recreate-dev:
+    # 仅在 PR 被合并且来源分支是 dev-* 格式（带时间戳）时运行
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'dev-')
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Get old branch name and generate new branch name
+        id: branch_name
+        run: |
+          # 获取旧的 dev 分支名（来源分支）
+          OLD_BRANCH="${{ github.event.pull_request.head.ref }}"
+          echo "old_branch=$OLD_BRANCH" >> $GITHUB_OUTPUT
+          echo "🗂️ 旧分支名: $OLD_BRANCH"
+          
+          # 生成 yyyymmdd 格式的时间戳
+          TIMESTAMP=$(date +%Y%m%d)
+          NEW_BRANCH_NAME="dev-${TIMESTAMP}"
+          echo "new_branch=$NEW_BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "📅 时间戳: $TIMESTAMP"
+          echo "🌿 新分支名: $NEW_BRANCH_NAME"
+      
+      - name: Verify we are on main branch
+        run: |
+          CURRENT_BRANCH=$(git branch --show-current)
+          echo "当前分支: $CURRENT_BRANCH"
+          if [ "$CURRENT_BRANCH" != "main" ]; then
+            echo "❌ 错误：不在 main 分支"
+            exit 1
+          fi
+          echo "✅ 确认在 main 分支"
+      
+      - name: Pull latest main
+        run: |
+          echo "📥 拉取最新的 main 分支..."
+          git pull origin main
+      
+      - name: Delete old dev branch
+        run: |
+          OLD_BRANCH="${{ steps.branch_name.outputs.old_branch }}"
+          echo "🗑️ 删除旧的 $OLD_BRANCH 分支..."
+          if git ls-remote --heads origin "$OLD_BRANCH" | grep -q "$OLD_BRANCH"; then
+            git push origin --delete "$OLD_BRANCH"
+            echo "✅ 旧 $OLD_BRANCH 分支已删除"
+          else
+            echo "📌 $OLD_BRANCH 分支已不存在，跳过删除"
+          fi
+      
+      - name: Wait for branch deletion
+        run: |
+          echo "⏳ 等待 2 秒以确保分支完全删除..."
+          sleep 2
+      
+      - name: Create new dev branch from main
+        run: |
+          NEW_BRANCH="${{ steps.branch_name.outputs.new_branch }}"
+          echo "🌱 从 main 创建新的 $NEW_BRANCH 分支..."
+          git checkout -b "$NEW_BRANCH"
+          git push origin "$NEW_BRANCH"
+          echo "✅ 新 $NEW_BRANCH 分支已创建"
+      
+      - name: Verify new dev branch
+        run: |
+          NEW_BRANCH="${{ steps.branch_name.outputs.new_branch }}"
+          if git ls-remote --heads origin "$NEW_BRANCH" | grep -q "$NEW_BRANCH"; then
+            echo "✅ 验证成功：新 $NEW_BRANCH 分支已存在于远程仓库"
+            MAIN_COMMIT=$(git rev-parse main)
+            DEV_COMMIT=$(git rev-parse "origin/$NEW_BRANCH")
+            echo "📍 main 分支 commit: $MAIN_COMMIT"
+            echo "📍 $NEW_BRANCH 分支 commit: $DEV_COMMIT"
+            if [ "$MAIN_COMMIT" = "$DEV_COMMIT" ]; then
+              echo "✅ $NEW_BRANCH 分支与 main 分支同步"
+            else
+              echo "⚠️ 警告：$NEW_BRANCH 分支与 main 分支不同步"
+            fi
+          else
+            echo "❌ 错误：新 $NEW_BRANCH 分支创建失败"
+            exit 1
+          fi
+      
+      - name: Summary
+        run: |
+          OLD_BRANCH="${{ steps.branch_name.outputs.old_branch }}"
+          NEW_BRANCH="${{ steps.branch_name.outputs.new_branch }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ dev 分支重建完成"
+          echo "📝 操作摘要："
+          echo "   • PR #${{ github.event.pull_request.number }} 已合并"
+          echo "   • 旧 $OLD_BRANCH 分支已删除"
+          echo "   • 新 $NEW_BRANCH 分支已从 main 创建"
+          echo "   • 新 $NEW_BRANCH 分支与 main 保持同步"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+

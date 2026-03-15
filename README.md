@@ -1,447 +1,158 @@
-<div align="center">
-# OpenCentra
+# AgentScope Spark Design
 
-> A customized project based on CoPaw designed to support precise AI automation requirements. To reduce unnecessary token consumption, the message structure was optimized, resulting in a measured 90% reduction in token usage. Compared with OpenClaw, it achieves even greater token savings.
+Alibaba Cloud Feitian Lab UI Component Library - Monorepo Version
 
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-black.svg?logo=github)](https://github.com/opencentra/opencentra)
-[![PyPI](https://img.shields.io/pypi/v/opencentra?color=3775A9&label=PyPI&logo=pypi)](https://pypi.org/project/opencentra/)
-[![Python Version](https://img.shields.io/badge/python-3.10%20~%20%3C3.14-blue.svg?logo=python&label=Python)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-red.svg?logo=apache&label=License)](LICENSE)
+[Deploy Docs](https://github.com/agentscope-ai/agentscope-spark-design/actions/workflows/deploy-docs.yml)
 
-[[中文 README](README_zh.md)]
+[简体中文](./README.zh-CN.md) | English
 
----
+## 📚 Documentation
 
-## 🚀 Quick Install (OpenCentra)
+Online Documentation: **https://sparkdesign.agentscope.io/**
 
-**Windows (PowerShell):**
-```powershell
-irm https://raw.githubusercontent.com/opencentra/opencentra/main/scripts/install.ps1 | iex
-```
+## 📦 Packages
 
-**macOS / Linux:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/opencentra/opencentra/main/scripts/install.sh | bash
-```
-
-**pip install:**
-```bash
-pip install opencentra
-```
-
-**After installation:**
-```bash
-copaw init --defaults   # or: opencentra init --defaults
-copaw app               # or: opencentra app
-```
-
-Then open **http://127.0.0.1:8088/** in your browser.
-
----
-
-
-
-<p align="center">
-  <img src="https://img.alicdn.com/imgextra/i2/O1CN014TIqyO1U5wDiSbFfA_!!6000000002467-2-tps-816-192.png" alt="CoPaw Logo" width="120">
-</p>
-
-<p align="center"><b>Works for you, grows with you.</b></p>
-
-</div>
-
-Your Personal AI Assistant; easy to install, deploy 
-
-on your own machine or on the cloud; supports multiple chat apps with easily extensible capabilities.
-
-> **Core capabilities:**
->
-> **Every channel** — DingTalk, Feishu, QQ, Discord, iMessage, and more. One assistant, connect as you need.
->
-> **Under your control** — Memory and personalization under your control. Deploy locally or in the cloud; scheduled reminders to any channel.
->
-> **Skills** — Built-in cron; custom skills in your workspace, auto-loaded. No lock-in.
->
-> <details>
-> <summary><b>What you can do</b></summary>
->
-> <br>
->
-> - **Social**: daily digest of hot posts (Xiaohongshu, Zhihu, Reddit), Bilibili/YouTube summaries.
-> - **Productivity**: newsletter digests to DingTalk/Feishu/QQ, contacts from email/calendar.
-> - **Creative**: describe your goal, run overnight, get a draft next day.
-> - **Research**: track tech/AI news, personal knowledge base.
-> - **Desktop**: organize files, read/summarize docs, request files in chat.
-> - **Explore**: combine Skills and cron into your own agentic app.
->
-> </details>
-
----
-
-## News
-
-[2026-03-06] We released v0.0.5! See the [v0.0.5 Release Notes](https://agentscope-ai.github.io/CoPaw/release-notes) for the full changelog.
-
-- **[v0.0.5] Added:** Daemon mode; Twilio voice channel; DeepSeek Reasoner support; agent interruption API; version update notifications; optional display of thinking and tool calls.
-- **[v0.0.5] Improved:** Memory system upgrade; console UI improvements; optional channel lazy loading; Windows one-click installation script.
-- **[v0.0.5] Fixed:** Docker configuration persistence; Ollama base URL; channel fixes; Windows compatibility; MCP client stability.
-- **[v0.0.5] Docs:** Release notes; improved model and channel configuration guides; Docker + Ollama connection guide.
-- **[v0.0.5] Contributors:** Thanks to new contributors: [@qoli](https://github.com/qoli), [@qbc2016](https://github.com/qbc2016), [@yunlzheng](https://github.com/yunlzheng), [@BlueSkyXN](https://github.com/BlueSkyXN), [@sidonsoft](https://github.com/sidonsoft), [@lishengzxc](https://github.com/lishengzxc), [@pikaxinge](https://github.com/pikaxinge), [@linshengli](https://github.com/linshengli), [@eltociear](https://github.com/eltociear), [@liuxiaopai-ai](https://github.com/liuxiaopai-ai), [@Leirunlin](https://github.com/Leirunlin), [@pan-x-c](https://github.com/pan-x-c), [@garyzhang99](https://github.com/garyzhang99), [@celestialhorse51D](https://github.com/celestialhorse51D), [@wwx814](https://github.com/wwx814), [@nszhsl](https://github.com/nszhsl), [@DavdGao](https://github.com/DavdGao), [@zhangckcup](https://github.com/zhangckcup).
-
-[2026-03-02] We released v0.0.4! See the [v0.0.4 Release Notes](https://agentscope-ai.github.io/CoPaw/release-notes) for the full changelog.
-
----
-
-## Table of Contents
-
-> **Recommended reading:**
->
-> - **I want to run CoPaw in 3 commands**: [Quick Start](#quick-start) → open Console in browser.
-> - **I want to chat in DingTalk / Feishu / QQ**: Configure [channels](https://copaw.agentscope.io/docs/channels) in the Console.
-> - **I don’t want to install Python**: [One-line install](#one-line-install-beta-continuously-improving) handles Python automatically, or use [ModelScope one-click](https://modelscope.cn/studios/fork?target=AgentScope/CoPaw) for cloud deployment.
-
-- [News](#news)
-- [Quick Start](#quick-start)
-- [API Key](#api-key)
-- [Local Models](#local-models)
-- [Documentation](#documentation)
-- [FAQ](#faq)
-- [Roadmap](#roadmap)
-- [Contributing](#get-involved)
-- [Install from source](#install-from-source)
-- [Why CoPaw?](#why-copaw)
-- [Built by](#built-by)
-- [License](#license)
-
----
-
-## Quick Start
-
-### pip install (recommended)
-
-If you prefer managing Python yourself:
-
-```bash
-pip install copaw
-copaw init --defaults
-copaw app
-```
-
-Then open **http://127.0.0.1:8088/** in your browser for the Console (chat with CoPaw, configure the agent). To talk in DingTalk, Feishu, QQ, etc., add a channel in the [docs](https://copaw.agentscope.io/docs/channels).
-
-![Console](https://img.alicdn.com/imgextra/i4/O1CN01z9VY6z1uMad7pgrCj_!!6000000006023-2-tps-3822-2064.png)
-
-### One-line install (beta, continuously improving)
-
-No Python required — the installer handles everything for you:
-
-**macOS / Linux:**
-
-```bash
-curl -fsSL https://copaw.agentscope.io/install.sh | bash
-```
-
-To install with Ollama support:
-
-```bash
-curl -fsSL https://copaw.agentscope.io/install.sh | bash -s -- --extras ollama
-```
-
-To install with multiple extras (e.g., Ollama + llama.cpp):
-
-```bash
-curl -fsSL https://copaw.agentscope.io/install.sh | bash -s -- --extras ollama,llamacpp
-```
-
-**Windows (CMD):**
-
-```CMD
-curl -fsSL https://copaw.agentscope.io/install.bat -o install.bat && install.bat
-```
-
-**Windows (PowerShell):**
-
-```powershell
-irm https://copaw.agentscope.io/install.ps1 | iex
-```
-
-> **Note**: The installer will automatically check the status of uv. If it is not installed, it will attempt to download and configure it automatically. If the automatic installation fails, please follow the on-screen prompts or execute `python -m pip install -U uv`, then rerun the installer.
-
-> **⚠️ Special Notice for Windows Enterprise LTSC Users**
->
-> If you are using Windows LTSC or an enterprise environment governed by strict security policies, PowerShell may run in **Constrained Language Mode**, potentially causing the following issue:
-> 1. **If using CMD (.bat): Script executes successfully but fails to write to `Path`**
->
->    The script completes file installation. Due to **Constrained Language Mode**, it cannot automatically update environment variables. Manually configure as follows:
->    - **Locate the installation directory**:
->      - Check if `uv` is available: Enter `uv --version` in CMD. If a version number appears, **only configure the CoPaw path**. If you receive the prompt `'uv' is not recognized as an internal or external command, operable program or batch file,` configure both paths.
->      - uv path (choose one based on installation location; use if `uv` fails): Typically `%USERPROFILE%\.local\bin`, `%USERPROFILE%\AppData\Local\uv`, or the `Scripts` folder within your Python installation directory
->      - CoPaw path: Typically located at `%USERPROFILE%\.copaw\bin`.
->    - **Manually add to the system's Path environment variable**:
->      - Press `Win + R`, type `sysdm.cpl` and press Enter to open System Properties.
->      - Click “Advanced” -> “Environment Variables”.
->      - Under “System variables”, locate and select `Path`, then click “Edit”.
->      - Click “New”, enter both directory paths sequentially, then click OK to save.
-> 2. **If using PowerShell (.ps1): Script execution interrupted**
->
->   Due to **Constrained Language Mode**, the script may fail to automatically download `uv`.
->   - **Manually install uv**: Refer to the [GitHub Release](https://github.com/astral-sh/uv/releases) to download `uv.exe` and place it in `%USERPROFILE%\.local\bin` or `%USERPROFILE%\AppData\Local\uv`; or ensure Python is installed and run `python -m pip install -U uv`.
->   - **Configure `uv` environment variables**: Add the `uv` directory and `%USERPROFILE%\.copaw\bin` to your system's `Path` variable.
->   - **Re-run the installation**: Open a new terminal and execute the installation script again to complete the `CoPaw` installation.
->   - **Configure the `CoPaw` environment variable**: Add `%USERPROFILE%\.copaw\bin` to your system's `Path` variable.
-
-Once installed, open a new terminal and run:
-
-```bash
-copaw init --defaults   # or: copaw init (interactive)
-copaw app
-```
-
-<details>
-<summary><b>Install options</b></summary>
-
-**macOS / Linux:**
-
-```bash
-# Install a specific version
-curl -fsSL ... | bash -s -- --version 0.0.2
-
-# Install from source (dev/testing)
-curl -fsSL ... | bash -s -- --from-source
-
-# With local model support
-bash install.sh --extras llamacpp    # llama.cpp (cross-platform)
-bash install.sh --extras mlx         # MLX (Apple Silicon)
-bash install.sh --extras llamacpp,mlx
-
-# Upgrade — just re-run the installer
-curl -fsSL ... | bash
-
-# Uninstall
-copaw uninstall          # keeps config and data
-copaw uninstall --purge  # removes everything
-```
-
-**Windows (PowerShell):**
-
-```powershell
-# Install a specific version
-irm ... | iex; .\install.ps1 -Version 0.0.2
-
-# Install from source (dev/testing)
-.\install.ps1 -FromSource
-
-# With local model support
-.\install.ps1 -Extras llamacpp      # llama.cpp (cross-platform)
-.\install.ps1 -Extras mlx           # MLX
-.\install.ps1 -Extras llamacpp,mlx
-
-# Upgrade — just re-run the installer
-irm ... | iex
-
-# Uninstall
-copaw uninstall          # keeps config and data
-copaw uninstall --purge  # removes everything
-```
-
-</details>
-
-### Using Docker
-
-Images are on **Docker Hub** (`agentscope/copaw`). Image tags: `latest` (stable); `pre` (PyPI pre-release).
-
-```bash
-docker pull agentscope/copaw:latest
-docker run -p 127.0.0.1:8088:8088 -v copaw-data:/app/working agentscope/copaw:latest
-```
-
-Also available on Alibaba Cloud Container Registry (ACR) for users in China: `agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/copaw` (same tags).
-
-Then open **http://127.0.0.1:8088/** for the Console. Config, memory, and skills are stored in the `copaw-data` volume. To pass API keys (e.g. `DASHSCOPE_API_KEY`), add `-e VAR=value` or `--env-file .env` to `docker run`.
-
-> **Connecting to Ollama or other services on the host machine**
->
-> Inside a Docker container, `localhost` refers to the container itself, not your host machine. If you run Ollama (or other model services) on the host and want CoPaw in Docker to reach them, use one of these approaches:
->
-> **Option A** — Explicit host binding (all platforms):
-> ```bash
-> docker run -p 127.0.0.1:8088:8088 \
->   --add-host=host.docker.internal:host-gateway \
->   -v copaw-data:/app/working agentscope/copaw:latest
-> ```
-> Then in CoPaw **Settings → Models → Ollama**, change the Base URL to `http://host.docker.internal:11434/v1` or your corresponding port.
->
-> **Option B** — Host networking (Linux only):
-> ```bash
-> docker run --network=host -v copaw-data:/app/working agentscope/copaw:latest
-> ```
-> No port mapping (`-p`) is needed; the container shares the host network directly. Note that all container ports are exposed on the host, which may cause conflicts if the port is already in use.
-
-The image is built from scratch. To build the image yourself, please refer to the [Build Docker image](scripts/README.md#build-docker-image) section in `scripts/README.md`, and then push to your registry.
-
-### Using ModelScope
-
-**No local install?** [ModelScope Studio](https://modelscope.cn/studios/fork?target=AgentScope/CoPaw) one-click cloud setup. Set your Studio to **non-public** so others cannot control your CoPaw.
-
-### Deploy on Alibaba Cloud ECS
-
-To run CoPaw on Alibaba Cloud (ECS), use the one-click deployment: open the [CoPaw on Alibaba Cloud (ECS) deployment link](https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&ServiceId=service-1ed84201799f40879884) and follow the prompts. For step-by-step instructions, see [Alibaba Cloud Developer: Deploy your AI assistant in 3 minutes](https://developer.aliyun.com/article/1713682).
-
----
-
-## API Key
-
-If you use a **cloud LLM** (e.g. DashScope, ModelScope), you must configure an API key before chatting. CoPaw will not work until a valid key is set. See the [official docs](https://copaw.agentscope.io/docs/models#configure-cloud-providers) for details.
-
-**How to configure:**
-
-1. **Console (recommended)** — After running `copaw app`, open **http://127.0.0.1:8088/** → **Settings** → **Models**. Choose a provider, enter the **API Key**, and enable that provider and model.
-2. **`copaw init`** — When you run `copaw init`, it will guide you through configuring the LLM provider and API key. Follow the prompts to choose a provider and enter your key.
-3. **Environment variable** — For DashScope you can set `DASHSCOPE_API_KEY` in your shell or in a `.env` file in the working directory.
-
-Tools that need extra keys (e.g. `TAVILY_API_KEY` for web search) can be set in Console **Settings → Environment variables**, or see [Config](https://copaw.agentscope.io/docs/config) for details.
-
-> **Using local models only?** If you use [Local Models](#local-models) (llama.cpp or MLX), you do **not** need any API key.
-
-## Local Models
-
-CoPaw can run LLMs entirely on your machine — no API keys or cloud services required. See the [official docs](https://copaw.agentscope.io/docs/models#local-providers-llamacpp--mlx) for details.
-
-| Backend       | Best for                                 | Install                                                              |
-| ------------- | ---------------------------------------- | -------------------------------------------------------------------- |
-| **llama.cpp** | Cross-platform (macOS / Linux / Windows) | `pip install 'copaw[llamacpp]'` or `bash install.sh --extras llamacpp` |
-| **MLX**       | Apple Silicon Macs (M1/M2/M3/M4)         | `pip install 'copaw[mlx]'` or `bash install.sh --extras mlx`         |
-| **Ollama**    | Cross-platform (requires Ollama service) | `pip install 'copaw[ollama]'` or `bash install.sh --extras ollama`   |
-
-After installing, you can download and manage local models in the **Console** UI. You can also use the command line:
-
-```bash
-copaw models download Qwen/Qwen3-4B-GGUF
-copaw models # select the downloaded model
-copaw app # start the server
-```
-
----
-
-## Documentation
-
-| Topic                                                                 | Description                                      |
-| --------------------------------------------------------------------- | ------------------------------------------------ |
-| [Introduction](https://copaw.agentscope.io/docs/intro)                | What CoPaw is and how to use it                  |
-| [Quick start](https://copaw.agentscope.io/docs/quickstart)            | Install and run (local or ModelScope Studio)    |
-| [Console](https://copaw.agentscope.io/docs/console)                   | Web UI: chat and agent configuration            |
-| [Models](https://copaw.agentscope.io/docs/models)                     | Configure cloud, local, and custom providers    |
-| [Channels](https://copaw.agentscope.io/docs/channels)                  | DingTalk, Feishu, QQ, Discord, iMessage, and more |
-| [Skills](https://copaw.agentscope.io/docs/skills)                      | Extend and customize capabilities               |
-| [MCP](https://copaw.agentscope.io/docs/skills)                        | Manage MCP clients                               |
-| [Memory](https://copaw.agentscope.io/docs/memory)                     | Context and long-term memory                     |
-| [Magic commands](https://copaw.agentscope.io/docs/commands)           | Control conversation state without waiting for the AI |
-| [Heartbeat](https://copaw.agentscope.io/docs/heartbeat)                | Scheduled check-in and digest                    |
-| [Config & working dir](https://copaw.agentscope.io/docs/config) | Working directory and config file                |
-| [CLI](https://copaw.agentscope.io/docs/cli)                            | Init, cron jobs, skills, clean                   |
-| [FAQ](https://copaw.agentscope.io/docs/faq)                           | Common questions and troubleshooting             |
-
-Full docs in this repo: [website/public/docs/](website/public/docs/).
-
----
-
-## FAQ
-
-For common questions, troubleshooting tips, and known issues, please visit the **[FAQ page](https://copaw.agentscope.io/docs/faq)**.
-
----
-
-## Roadmap
-
-| Area | Item | Status |
+| Package | Path | Description |
 | --- | --- | --- |
-| Horizontal Expansion | More channels, models, skills, MCPs — **community contributions welcome** | Seeking Contributors |
-| Existing Feature Extension | Display optimization, download hints, Windows path compatibility, etc. — **community contributions welcome** | Seeking Contributors |
-| Console Web UI | Expose more info/config in the Console | In Progress |
-| Compatibility & Ease of Use | App-level packaging (.dmg, .exe) | In Progress |
-| Self-healing | Magic commands and daemon capabilities (CLI, status, restart, logs) | In Progress |
-| | DaemonAgent: autonomous diagnostics, self-healing, and recovery | Planned |
-| Multi-agent | Background task support | In Progress |
-| | Multi-agent isolation | Planned |
-| | Inter-agent contention resolution | Planned |
-| | Multi-agent communication | Planned |
-| Multimodal | Voice/video calls and real-time interaction | In Progress |
-| Release & Contributing | Contributing guidance for vibe coding agents | Planned |
-| Bugfixes & Enhancements | Skills and MCP runtime install, hot-reload improvements | Planned |
-| Security | Shell execution confirmation | Planned |
-| | Tool/skills security | Planned |
-| | Configurable security levels (user-configurable) | Planned |
-| Sandbox | Deeper integration with AgentScope Runtime sandboxes | Long-term Planning |
-| CoPaw-optimized local models | LLMs tuned for CoPaw's native skills and common tasks; better local personal-assistant usability | Long-term Planning |
-| Small + large model collaboration | Local LLMs for sensitive data; cloud LLMs for planning and coding; balance of privacy, performance, and capability | Long-term Planning |
-| Cloud-native | Deeper integration with AgentScope Runtime; leverage cloud compute, storage, and tooling | Long-term Planning |
-| Skills Hub | Enrich the [AgentScope Skills](https://github.com/agentscope-ai/agentscope-skills) repository and improve discoverability of high-quality skills | Long-term Planning |
+| **@agentscope-ai/design** | `packages/spark-design` | Core design system component library, enhanced UI components based on Ant Design |
+| **@agentscope-ai/chat** | `packages/spark-chat` | LLM conversation component library for building AI chat experiences |
 
-*Status:* *In Progress* — actively being worked on; *Planned* — queued or under design, also **welcome contributions**; *Seeking Contributors* — we **strongly encourage community contributions**; *Long-term Planning* — longer-horizon roadmap.
+## 🚀 Quick Start
 
-### Get involved
-
-We are building CoPaw in the open and welcome contributions of all kinds! Check the [Roadmap](#roadmap) above (especially items marked **Seeking Contributors**) to find areas that interest you, and read [CONTRIBUTING](https://github.com/agentscope-ai/CoPaw/blob/main/CONTRIBUTING.md) to get started. We particularly welcome:
-
-- **Horizontal expansion** — new channels, model providers, skills, MCPs.
-- **Existing feature extension** — display and UX improvements, download hints, Windows path compatibility, and the like.
-
-Join the conversation on [GitHub Discussions](https://github.com/agentscope-ai/CoPaw/discussions) to suggest or pick up work.
-
----
-
-## Install from source
+### Installation
 
 ```bash
-git clone https://github.com/agentscope-ai/CoPaw.git
-cd CoPaw
-
-# Build console frontend first (required for web UI)
-cd console && npm ci && npm run build
-cd ..
-
-# Copy console build output to package directory
-mkdir -p src/copaw/console
-cp -R console/dist/. src/copaw/console/
-
-# Install Python package
-pip install -e .
+# Using pnpm (recommended)
+pnpm install
 ```
 
-- **Dev** (tests, formatting): `pip install -e ".[dev]"`
-- **Then**: Run `copaw init --defaults`, then `copaw app`.
+### Development
 
----
+```bash
+# Start spark-design dev server
+pnpm run start:spark-design
 
-## Why CoPaw?
+# Start spark-chat dev server
+pnpm run start:spark-chat
+```
 
-CoPaw represents both a **Co Personal Agent Workstation** and a "co-paw"—a partner always by your side. More than just a cold tool, CoPaw is a warm "little paw" always ready to lend a hand (or a paw!). It is the ultimate teammate for your digital life.
+### Build
 
----
+```bash
+# Build all packages
+pnpm run build
 
-## Built by
+# Build spark-design only
+pnpm run build:spark-design
 
-[AgentScope team](https://github.com/agentscope-ai) · [AgentScope](https://github.com/agentscope-ai/agentscope) · [AgentScope Runtime](https://github.com/agentscope-ai/agentscope-runtime) · [ReMe](https://github.com/agentscope-ai/ReMe)
+# Build spark-chat only
+pnpm run build:spark-chat
 
----
+# Build documentation
+cd packages/spark-design
+pnpm run docs:build
 
-## Contact us
+# Build GitHub Pages version
+pnpm run docs:build:gh
+```
 
-| [Discord](https://discord.gg/eYMpfnkG8h)                     | [X (Twitter)](https://x.com/agentscope_ai)                   | [DingTalk](https://qr.dingtalk.com/action/joingroup?code=v1,k1,OmDlBXpjW+I2vWjKDsjvI9dhcXjGZi3bQiojOq3dlDw=&_dt_no_comment=1&origin=11) |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [<img src="https://gw.alicdn.com/imgextra/i1/O1CN01hhD1mu1Dd3BWVUvxN_!!6000000000238-2-tps-400-400.png" width="80" height="80" alt="Discord">](https://discord.gg/eYMpfnkG8h) | [<img src="https://img.shields.io/badge/X-black.svg?logo=x&logoColor=white" width="80" height="80" alt="X">](https://x.com/agentscope_ai) | [<img src="https://img.alicdn.com/imgextra/i2/O1CN01vCWI8a1skHtLGXEMQ_!!6000000005804-2-tps-458-460.png" width="80" height="80" alt="DingTalk">](https://qr.dingtalk.com/action/joingroup?code=v1,k1,OmDlBXpjW+I2vWjKDsjvI9dhcXjGZi3bQiojOq3dlDw=&_dt_no_comment=1&origin=11) |
+## 📖 Documentation Deployment
 
----
+Documentation is configured to automatically deploy to GitHub Pages.
 
-## License
+- **Quick Guide**: [DEPLOY_QUICKSTART.md](./DEPLOY_QUICKSTART.md)
+- **Detailed Documentation**: [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)
 
-CoPaw is released under the [Apache License 2.0](LICENSE).
+Documentation is automatically built and deployed on every push to the `main` branch.
 
----
+## 🏗️ Monorepo Structure
 
-## Contributors
+```
+agentscope-spark-design/
+├── packages/
+│   ├── spark-design/              # Core UI component library
+│   │   ├── src/
+│   │   │   ├── antd/              # Ant Design theme config
+│   │   │   ├── components/        # UI components
+│   │   │   │   ├── commonComponents/   # Common components
+│   │   │   │   └── mobileComponents/   # Mobile components
+│   │   │   ├── hooks/             # Shared hooks
+│   │   │   ├── libs/              # Utility functions
+│   │   │   └── i18n/              # Internationalization
+│   │   ├── docs/                  # Documentation source
+│   │   └── package.json
+│   │
+│   └── spark-chat/                # LLM conversation library
+│       ├── components/
+│       │   ├── AGUI/              # AGUI components
+│       │   ├── Bubble/            # Message bubble
+│       │   ├── Sender/            # Message sender
+│       │   ├── Markdown/          # Markdown renderer
+│       │   ├── Mermaid/           # Diagram renderer
+│       │   ├── Conversations/     # Conversation list
+│       │   ├── ChatAnywhere/      # Ready-to-use chat container
+│       │   └── ...
+│       ├── docs/                  # Documentation source
+│       └── package.json
+│
+├── .github/
+│   └── workflows/
+│       └── deploy-docs.yml        # GitHub Actions config
+├── package.json                   # Root config
+└── pnpm-lock.yaml
+```
 
-All thanks to our contributors:
+## 🔧 Tech Stack
 
-<a href="https://github.com/agentscope-ai/CoPaw/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=agentscope-ai/CoPaw" alt="Contributors" />
-</a>
+- **Build Tool**: [Father](https://github.com/umijs/father)
+- **Documentation**: [Dumi](https://d.umijs.org/)
+- **Package Manager**: [pnpm](https://pnpm.io/)
+- **UI Framework**: [Ant Design 5](https://ant.design/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [antd-style](https://ant-design.github.io/antd-style/)
+- **Code Quality**: ESLint + Stylelint + Prettier + Husky
+
+## ✨ Core Features
+
+### @agentscope-ai/design
+
+- 🎨 Custom theme system based on Ant Design 5
+- 🔧 Enhanced UI components (Button, Modal, Select, etc.)
+- 📱 Mobile component support
+- 🎯 Custom icon system (@agentscope-ai/icons)
+- 🌐 Internationalization support
+
+### @agentscope-ai/chat
+
+- 🤖 Ready-to-use LLM conversation experience
+- 📝 Markdown rendering (with math formulas and code highlighting)
+- 🎨 Extensible card component system
+- 📊 Mermaid diagram support
+- 🔄 Streaming response support
+- 🎙️ Voice input support
+
+## 📝 Development Guidelines
+
+See rule files in `.cursor/rules/` directory:
+
+- `mastergo.mdc` - MasterGo data processing rules
+- `commonComponents.mdc` - Standard component identification rules
+
+## 🤝 Contributing
+
+Contributions are welcome! Please ensure:
+
+1. Follow existing code style
+2. Add necessary tests
+3. Update relevant documentation
+
+## 📄 License
+
+- spark-design: MIT
+- spark-chat: Apache-2.0
+
+## 🔗 Links
+
+- [Online Documentation](https://agentscope-ai.github.io/agentscope-spark-design/)
+- [GitHub Repository](https://github.com/agentscope-ai/agentscope-spark-design)
+- [Issue Tracker](https://github.com/agentscope-ai/agentscope-spark-design/issues)
+- [Alibaba Cloud Bailian](https://bailian.console.aliyun.com/)

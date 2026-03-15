@@ -1,0 +1,90 @@
+---
+hero:
+  title: Changelog
+  description: Release versions follow Semantic Versioning 2.0.0.
+---
+### 1.0.30
+`2025-03-03`
+
+#### Fixed
+- Removed `!important` styles from several components (Breadcrumb, DatePicker, Pagination, RadioButton, Steps)
+- Empty: Illustrate SVG loader no longer uses Symbol-based caching, preventing empty SVG rendering caused by duplicate cache entries
+- PromptsEditor: added `maxLength` support, consistent with native Textarea behavior
+- InputSearch: removed the left border of the suffix icon; updated hover and focus states to apply border and shadow to the entire input group
+
+#### Changed
+- Added Cascader component documentation
+
+### 1.0.29
+`2025-02-06`
+
+#### Fixed
+- CodeBlock: removed `!important` from style file, added `.spark-code-block` container class wrapper; props now support ReactCodeMirrorProps type passthrough
+- PromptsEditor: added ReactCodeMirrorProps type passthrough support; fixed `${}` variable input recognition issue in VarRender
+- Steps: fixed vertical alignment issue in vertical mode
+- SlateEditor: normalized CRLF to LF in pasted text for better compatibility with Windows line endings
+- Tab: segment type now supports className passthrough
+
+### 1.0.28
+`2025-01-29`
+
+#### Changed
+- PromptsEditor: added `readOnly` prop support
+- CodeBlock: added `extensions` prop to allow custom CodeMirror extensions
+- MCP: upgraded tool names and optimized logging functionality
+
+#### Fixed
+- Pagination: fixed the issue where `pageSizeOptions` was not effective when both `showSizeChanger` and `pageSizeOptions` were passed
+
+### 1.0.27
+`2025-01-27`
+
+##### Changed
+- Added InputSearch component documentation
+
+##### Fixed
+- Table: changed default header border-radius from rounded to square when header is fixed
+- Empty: fixed the issue where SVG might be missing when multiple Empty components are imported
+- Fixed documentation search white screen issue
+
+### 1.0.26
+`2025-01-21`
+
+##### Changed
+- Audio: refactored detection logic and improved performance using useCallback
+- Audio & Video: added SVG icons, supporting display in FileIcon component
+- Documentation: added icons list display and copy functionality
+
+### 1.0.25
+`2025-01-07`
+
+##### Fixed
+- Tooltip: fixed the style specificity issue inside the popover.
+
+### 1.0.24
+`2025-01-04`
+
+##### Changed
+- Video: added the `enableFullscreen` prop to support fullscreen playback.
+
+### 1.0.22
+`2025-12-29`
+
+##### Changed
+- Carbon theme: updated the `colorTextOnPrimary` token to `#ffffff`.
+
+### 1.0.21
+`2025-12-25`
+
+##### Changed
+- AlertDialog: adjusted the default top offset to 36% of the current viewport height.
+- Table: updated the row hover background color to the `color-bg-layout` token; updated the selected row background color to the `color-primary-bg-hover` token.
+- Select: adjusted the selected item background color in multiple selection mode.
+- Theme tokens updates:
+  - bailianDarkTheme: added `"colorLinkHover": "#857DE3"`.
+  - bailianTheme: added `"colorLinkHover": "#8080FF"`.
+  - carbonDarkTheme: updated `"colorTextOnPrimary": "#ffffff"`.
+
+##### Fixed
+- Slider: removed the default left/right margins for the horizontal slider; ensured the handle does not overflow the track at both ends.
+
